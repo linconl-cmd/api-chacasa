@@ -5,6 +5,16 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+
+app.get("/", (req, res) => {
+    return res.json("hello world")
+})
+
+// Iniciar o servidor
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em {PORT}`);
+});
+
 // Habilitar CORS para todas as origens
 app.use(cors());
 
@@ -34,7 +44,4 @@ app.get('/get-selection', (req, res) => {
     });
 });
 
-// Iniciar o servidor
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+
