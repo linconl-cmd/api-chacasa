@@ -6,7 +6,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Habilitar CORS para todas as origens
-app.use(cors());
+const corsOptions = {
+    origin: '*',  // Permitir qualquer origem
+    methods: ['GET', 'POST'],  // Métodos permitidos
+    allowedHeaders: ['Content-Type'],  // Cabeçalhos permitidos
+};
+
+app.use(cors(corsOptions)); // Ativar o middleware CORS com essas opções
 
 // Middleware para interpretar JSON
 app.use(express.json());
