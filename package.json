@@ -8,10 +8,10 @@
         "node": "20.x"
     },
     "scripts": {
-        "start": "node index.js",
         "test": "echo \"Error: no test specifed\" && exit 1",
-        "dev": "nodemon",
-        "vercel-build": "npx prisma migrate deploy"
+        "build": " prisma generate",
+        "prisma:generate": "prisma generate",
+        "start": "node index.js"
     },
     "keywords": [],
     "author": "",
@@ -20,11 +20,9 @@
         "@prisma/client": "^5.19.1",
         "cors": "^2.8.5",
         "express": "^4.20.0",
-        "mongodb": "^6.8.1",
         "nodemon": "^3.1.4"
     },
     "devDependencies": {
-        "json-server": "^1.0.0-beta.2",
         "prisma": "^5.19.1"
     }
 }
