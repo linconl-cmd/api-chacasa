@@ -2,73 +2,72 @@ import express from 'express';
 import cors from 'cors';
 import { MongoClient } from 'mongodb';
 
+// Configurações do MongoDB Atlas
+const uri = 'mongodb+srv://linconllee:w1biz2HNzZoMrNK8@my-mongodb.i1yn3.mongodb.net/?retryWrites=true&w=majority&appName=my-mongodb';
+const client = new MongoClient(uri);
+let db;
+
+// Conectando ao MongoDB
+async function connectToDb() {
+    try {
+        await client.connect();
+        db = client.db('my-mongodb'); // Substitua pelo nome do seu banco de dados
+        console.log('Conectado ao MongoDB Atlas');
+    } catch (error) {
+        console.error('Erro ao conectar ao MongoDB:', error);
+    }
+}
+
+// Chame a função de conexão
+connectToDb();
+
+// Criando servidor Express
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// String de conexão com o MongoDB Atlas
-const uri = 'mongodb+srv://linconllee:w1biz2HNzZoMrNK8@my-mongodb.i1yn3.mongodb.net/?retryWrites=true&w=majority&appName=my-mongodb';
-const client = new MongoClient(uri);
-
 // Habilitar CORS para todas as origens
 const corsOptions = {
-    origin: '*',  // Permitir qualquer origem
-    methods: ['GET', 'POST'],  // Métodos permitidos
-    allowedHeaders: ['Content-Type'],  // Cabeçalhos permitidos
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
 };
-
-app.use(cors(corsOptions)); // Ativar o middleware CORS com essas opções
+app.use(cors(corsOptions));
 
 // Middleware para interpretar JSON
 app.use(express.json());
 
-// Rota de teste
 app.get("/", (req, res) => {
     return res.json("hello world");
 });
 
-// Função para conectar ao banco de dados
-async function connectToDb() {
-    try {
-        await client.connect();
-        console.log('Conectado ao MongoDB Atlas');
-    } catch (error) {
-        console.error('Erro ao conectar ao MongoDB', error);
-    }
-}
-
-// Conectar ao banco de dados
-connectToDb();
-
-// Rota para salvar a seleção
+// Rota para salvar a seleção no MongoDB
 app.post('/save-selection', async (req, res) => {
     const selection = req.body;
-
     try {
-        const database = client.db('my-mongodb'); // Nome do seu banco de dados
-        const collection = database.collection('selections'); // Nome da coleção
-
-        // Insere a seleção no MongoDB
-        const result = await collection.insertOne({ selection, date: new Date() });
+        const result = await db.collection('selections').insertOne(selection);  // Substitua 'selections' pelo nome da sua coleção
         res.json({ message: 'Seleção salva com sucesso', result });
     } catch (error) {
-        console.error('Erro ao salvar a seleção', error);
-        res.status(500).json({ message: 'Erro ao salvar a seleção no MongoDB' });
+        console.error('Erro ao salvar a seleção:', error);
+        res.status(500).json({ message: 'Erro ao salvar a seleção' });
     }
 });
 
-// Rota para carregar a seleção
+// Rota para carregar a seleção do MongoDB
 app.get('/get-selection', async (req, res) => {
     try {
-        const database = client.db('my-mongodb'); // Nome do seu banco de dados
-        const collection = database.collection('selections');
-
-        // Busca todas as seleções salvas
-        const selections = await collection.find({}).toArray();
+        const selections = await db.collection('selections').find().toArray();  // Substitua 'selections' pelo nome da sua coleção
         res.json(selections);
     } catch (error) {
-        console.error('Erro ao carregar a seleção', error);
+        console.error('Erro ao carregar a seleção:', error);
         res.status(500).json({ message: 'Erro ao carregar a seleção' });
     }
+});
+
+// Fechar conexão com o MongoDB quando o servidor for interrompido
+process.on('SIGINT', async () => {
+    console.log("Fechando a conexão com o MongoDB...");
+    await client.close();
+    process.exit(0);
 });
 
 // Iniciar o servidor
