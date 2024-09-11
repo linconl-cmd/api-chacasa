@@ -1,9 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import { promises as fs } from 'fs';
+import { MongoClient } from 'mongodb';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// String de conexão com o MongoDB Atlas
+const uri = 'mongodb+srv://linconllee:<db_password>@cluster0.i1yn3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Habilitar CORS para todas as origens
 const corsOptions = {
@@ -17,30 +21,53 @@ app.use(cors(corsOptions)); // Ativar o middleware CORS com essas opções
 // Middleware para interpretar JSON
 app.use(express.json());
 
+// Rota de teste
 app.get("/", (req, res) => {
     return res.json("hello world");
 });
+
+// Função para conectar ao banco de dados
+async function connectToDb() {
+    try {
+        await client.connect();
+        console.log('Conectado ao MongoDB Atlas');
+    } catch (error) {
+        console.error('Erro ao conectar ao MongoDB', error);
+    }
+}
+
+// Conectar ao banco de dados
+connectToDb();
 
 // Rota para salvar a seleção
 app.post('/save-selection', async (req, res) => {
     const selection = req.body;
 
     try {
-        // Salvar a seleção em um arquivo db.json
-        await fs.writeFile('db.json', JSON.stringify(selection, null, 2));
-        res.json({ message: 'Seleção salva com sucesso' });
-    } catch (err) {
-        return res.status(500).json({ message: 'Erro ao salvar a seleção' });
+        const database = client.db('Cluster0'); // Nome do seu banco de dados
+        const collection = database.collection('selecao'); // Nome da coleção
+
+        // Insere a seleção no MongoDB
+        const result = await collection.insertOne({ selection, date: new Date() });
+        res.json({ message: 'Seleção salva com sucesso', result });
+    } catch (error) {
+        console.error('Erro ao salvar a seleção', error);
+        res.status(500).json({ message: 'Erro ao salvar a seleção no MongoDB' });
     }
 });
 
 // Rota para carregar a seleção
 app.get('/get-selection', async (req, res) => {
     try {
-        const data = await fs.readFile('db.json', 'utf8');
-        res.json(JSON.parse(data));
-    } catch (err) {
-        return res.status(500).json({ message: 'Erro ao carregar a seleção' });
+        const database = client.db('Cluster0'); // Nome do seu banco de dados
+        const collection = database.collection('selecao');
+
+        // Busca todas as seleções salvas
+        const selections = await collection.find({}).toArray();
+        res.json(selections);
+    } catch (error) {
+        console.error('Erro ao carregar a seleção', error);
+        res.status(500).json({ message: 'Erro ao carregar a seleção' });
     }
 });
 
