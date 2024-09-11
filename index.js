@@ -2,29 +2,26 @@ import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 
-// Inicializar o Prisma Client
 const prisma = new PrismaClient();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Habilitar CORS para todas as origens
+// Configurar o middleware CORS
 const corsOptions = {
-    origin: '*',  // Permite todas as origens
+    origin: '*', // Permite qualquer origem; ajuste conforme necessário
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
 };
-app.use(cors(corsOptions));
+
+app.use(cors(corsOptions)); // Certifique-se de que o middleware CORS é usado antes das rotas
 
 // Middleware para interpretar JSON
 app.use(express.json());
 
-// Rota de teste
 app.get("/", (req, res) => {
     return res.json("hello world");
 });
 
-// Rota para salvar a seleção no PostgreSQL
 app.post('/save-selection', async (req, res) => {
     const { name, item } = req.body;
 
@@ -46,7 +43,6 @@ app.post('/save-selection', async (req, res) => {
     }
 });
 
-// Rota para carregar as seleções do PostgreSQL
 app.get('/get-selection', async (req, res) => {
     try {
         const selections = await prisma.selection.findMany();
@@ -57,14 +53,12 @@ app.get('/get-selection', async (req, res) => {
     }
 });
 
-// Fechar a conexão com o Prisma quando o servidor for interrompido
 process.on('SIGINT', async () => {
     console.log("Fechando a conexão com o banco de dados...");
     await prisma.$disconnect();
     process.exit(0);
 });
 
-// Iniciar o servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando em ${PORT}`);
 });
