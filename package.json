@@ -10,7 +10,8 @@
     "scripts": {
         "start": "node index.js",
         "test": "echo \"Error: no test specifed\" && exit 1",
-        "dev": "nodemon"
+        "dev": "nodemon",
+        "vercel": "npx prisma migrate"
     },
     "keywords": [],
     "author": "",
