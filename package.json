@@ -11,7 +11,7 @@
         "start": "node index.js",
         "test": "echo \"Error: no test specifed\" && exit 1",
         "dev": "nodemon",
-        "vercel": "npx prisma migrate"
+        "vercel": "npx prisma migrate deploy"
     },
     "keywords": [],
     "author": "",
