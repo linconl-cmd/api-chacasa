@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // String de conexão com o MongoDB Atlas
-const uri = 'mongodb+srv://linconllee:<db_password>@cluster0.i1yn3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const uri = 'mongodb+srv://<linconllee>:<password>@cluster0.mongodb.net/<dbname>?retryWrites=true&w=majority';
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Habilitar CORS para todas as origens
@@ -32,7 +32,7 @@ async function connectToDb() {
         await client.connect();
         console.log('Conectado ao MongoDB Atlas');
     } catch (error) {
-        console.error('Erro ao conectar ao MongoDB', error);
+        console.error('Erro ao conectar ao MongoDB:', error);
     }
 }
 
@@ -44,8 +44,8 @@ app.post('/save-selection', async (req, res) => {
     const selection = req.body;
 
     try {
-        const database = client.db('Cluster0'); // Nome do seu banco de dados
-        const collection = database.collection('selecao'); // Nome da coleção
+        const database = client.db('<dbname>'); // Nome do seu banco de dados
+        const collection = database.collection('selections'); // Nome da coleção
 
         // Insere a seleção no MongoDB
         const result = await collection.insertOne({ selection, date: new Date() });
@@ -59,8 +59,8 @@ app.post('/save-selection', async (req, res) => {
 // Rota para carregar a seleção
 app.get('/get-selection', async (req, res) => {
     try {
-        const database = client.db('Cluster0'); // Nome do seu banco de dados
-        const collection = database.collection('selecao');
+        const database = client.db('<dbname>'); // Nome do seu banco de dados
+        const collection = database.collection('selections');
 
         // Busca todas as seleções salvas
         const selections = await collection.find({}).toArray();
