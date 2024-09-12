@@ -16,6 +16,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Middleware para interpretar JSON
+app.get('/favicon.ico', (req, res) => res.status(204)); // 204 No Content
 app.use(express.json());
 
 // Rota de teste
