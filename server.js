@@ -1,5 +1,5 @@
 import express from 'express';
-
+import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 
 // Inicializar o Prisma Client
@@ -8,7 +8,14 @@ const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Configurar o middleware CORS
+const corsOptions = {
+    origin: '*', // Permite qualquer origem; ajuste conforme necessário
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+};
 
+app.use(cors(corsOptions));
 // Middleware para interpretar JSON
 app.use(express.json());
 
