@@ -13,6 +13,5 @@ datasource db {
 model Selection {
   id    Int    @id @default(autoincrement())
   name  String
-  item  String
-  createdAt DateTime @default(now())
+  item  String @unique
 }

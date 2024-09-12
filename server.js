@@ -4,19 +4,16 @@ import { PrismaClient } from '@prisma/client';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 const prisma = new PrismaClient();
 
 // Habilitar CORS para todas as origens
-const corsOptions = {
+app.use(cors({
     origin: '*',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
-};
-app.use(cors(corsOptions));
+}));
 
 // Middleware para interpretar JSON
-app.get('/favicon.ico', (req, res) => res.status(204)); // 204 No Content
 app.use(express.json());
 
 // Rota de teste
@@ -28,16 +25,28 @@ app.get("/", (req, res) => {
 app.post('/save-selection', async (req, res) => {
     const selections = req.body;
 
-    // Verificar o formato dos dados
-    if (!Array.isArray(selections) || selections.some(item => !item.name || !item.item)) {
-        return res.status(400).json({ message: 'Nome e item são obrigatórios' });
+    if (!Array.isArray(selections)) {
+        return res.status(400).json({ message: 'Formato de dados inválido. Esperado um array.' });
     }
 
     try {
-        const result = await prisma.selection.createMany({
-            data: selections,
-        });
-        res.json({ message: 'Seleção salva com sucesso', result });
+        for (const selection of selections) {
+            const { name, item } = selection;
+
+            // Verifica se o item já está no banco de dados
+            const existingSelection = await prisma.selection.findFirst({
+                where: { item }
+            });
+
+            if (!existingSelection) {
+                // Se não existir, insere a nova seleção
+                await prisma.selection.create({
+                    data: { name, item }
+                });
+            }
+        }
+
+        res.json({ message: 'Seleção salva com sucesso' });
     } catch (error) {
         console.error('Erro ao salvar a seleção:', error);
         res.status(500).json({ message: 'Erro ao salvar a seleção' });
