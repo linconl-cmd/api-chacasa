@@ -2,21 +2,19 @@ import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 
-// Inicializar o Prisma Client
-const prisma = new PrismaClient();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configurar o middleware CORS
+const prisma = new PrismaClient();
+
+// Habilitar CORS para todas as origens
 const corsOptions = {
-    origin: '*', // Permite qualquer origem; ajuste conforme necessário
+    origin: '*',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
 };
-
 app.use(cors(corsOptions));
-app.options('*', cors());
+
 // Middleware para interpretar JSON
 app.use(express.json());
 
@@ -25,40 +23,38 @@ app.get("/", (req, res) => {
     return res.json("hello world");
 });
 
-// Rota para salvar a seleção no PostgreSQL
+// Rota para salvar a seleção no banco de dados
 app.post('/save-selection', async (req, res) => {
-    const { name, item } = req.body;
+    const selections = req.body;
 
-    if (!name || !item) {
+    // Verificar o formato dos dados
+    if (!Array.isArray(selections) || selections.some(item => !item.name || !item.item)) {
         return res.status(400).json({ message: 'Nome e item são obrigatórios' });
     }
 
     try {
-        const newSelection = await prisma.selection.create({
-            data: {
-                name,
-                item,
-            },
+        const result = await prisma.selection.createMany({
+            data: selections,
         });
-        res.json({ message: 'Seleção salva com sucesso', newSelection });
+        res.json({ message: 'Seleção salva com sucesso', result });
     } catch (error) {
         console.error('Erro ao salvar a seleção:', error);
         res.status(500).json({ message: 'Erro ao salvar a seleção' });
     }
 });
 
-// Rota para carregar as seleções do PostgreSQL
+// Rota para carregar a seleção do banco de dados
 app.get('/get-selection', async (req, res) => {
     try {
         const selections = await prisma.selection.findMany();
         res.json(selections);
     } catch (error) {
-        console.error('Erro ao carregar as seleções:', error);
-        res.status(500).json({ message: 'Erro ao carregar as seleções' });
+        console.error('Erro ao carregar a seleção:', error);
+        res.status(500).json({ message: 'Erro ao carregar a seleção' });
     }
 });
 
-// Fechar a conexão com o Prisma quando o servidor for interrompido
+// Fechar conexão com o banco de dados quando o servidor for interrompido
 process.on('SIGINT', async () => {
     console.log("Fechando a conexão com o banco de dados...");
     await prisma.$disconnect();
