@@ -10,10 +10,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Book {
-  id          String @id @default(uuid())
-  name        String
-  description String
-
-  @@map("books")
+model Selection {
+  id    Int    @id @default(autoincrement())
+  name  String
+  item  String
+  createdAt DateTime @default(now())
 }
