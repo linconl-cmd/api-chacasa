@@ -1,28 +1,25 @@
 {
-    "name": "nova-pasta",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "type": "module",
-    "engines": {
-        "node": "20.x"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specifed\" && exit 1",
-        "build": " prisma generate",
-        "prisma:generate": "prisma generate",
-        "start": "node index.js"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "@prisma/client": "^5.19.1",
-        "cors": "^2.8.5",
-        "express": "^4.20.0",
-        "nodemon": "^3.1.4"
-    },
-    "devDependencies": {
-        "prisma": "^5.19.1"
-    }
+  "name": "deploy-free",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/server.ts",
+    "vercel-build": "npx prisma migrate deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.15",
+    "nodemon": "^2.0.20",
+    "prisma": "^4.9.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4",
+    "vitest": "^0.27.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.16.2",
+    "express": "^4.18.2"
+  }
 }

@@ -1,5 +1,5 @@
-// prisma/schema.prisma
-
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -10,9 +10,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Selection {
-  id    Int    @id @default(autoincrement())
-  name  String
-  item  String
-  createdAt DateTime @default(now())
+model Book {
+  id          String @id @default(uuid())
+  name        String
+  description String
+
+  @@map("books")
 }
