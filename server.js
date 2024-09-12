@@ -16,6 +16,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors());
 // Middleware para interpretar JSON
 app.use(express.json());
 
